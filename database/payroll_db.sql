@@ -97,11 +97,11 @@ CREATE TABLE `employee_attendance` (
 -- (See below for the actual view)
 --
 CREATE TABLE `employee_attendance_summary` (
-`employee_id` int(11)
-,`attendance_date` date
-,`days_present` bigint(21)
-,`days_absent` bigint(21)
-,`days_leave` bigint(21)
+  `employee_id` int(11),
+  `attendance_date` date,
+  `days_present` bigint(21),
+  `days_absent` bigint(21),
+  `days_leave` bigint(21)
 );
 
 -- --------------------------------------------------------
@@ -145,7 +145,7 @@ CREATE TABLE `overtime` (
 --
 
 CREATE TABLE `payroll` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `employee_id` int(11) NOT NULL,
   `salary_period` date NOT NULL,
   `basic_pay` decimal(10,2) NOT NULL,
@@ -154,7 +154,7 @@ CREATE TABLE `payroll` (
   `net_pay` decimal(10,2) DEFAULT NULL,
   `is_archived` tinyint(1) NOT NULL DEFAULT 0,
   `archive_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `payment_status` enum('pending','paid','','') NOT NULL DEFAULT 'pending',
+  `payment_status` enum('pending','paid','unpaid') NOT NULL DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `basic_salary` decimal(10,2) NOT NULL DEFAULT 0.00,
@@ -163,7 +163,8 @@ CREATE TABLE `payroll` (
   `total_salary` decimal(10,2) DEFAULT 0.00,
   `employee_name` varchar(100) NOT NULL DEFAULT '',
   `attendance` int(11) DEFAULT 0,
-  `payroll_date` date DEFAULT curdate()
+  `payroll_date` date DEFAULT curdate(),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -191,7 +192,18 @@ CREATE TABLE `salary_payments` (
 --
 DROP TABLE IF EXISTS `employee_attendance_summary`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `employee_attendance_summary`  AS SELECT `employee_attendance`.`employee_id` AS `employee_id`, `employee_attendance`.`attendance_date` AS `attendance_date`, count(case when `employee_attendance`.`status` = 'present' then 1 end) AS `days_present`, count(case when `employee_attendance`.`status` = 'absent' then 1 end) AS `days_absent`, count(case when `employee_attendance`.`status` = 'leave' then 1 end) AS `days_leave` FROM `employee_attendance` GROUP BY `employee_attendance`.`employee_id`, month(`employee_attendance`.`attendance_date`), year(`employee_attendance`.`attendance_date`) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `employee_attendance_summary` AS 
+SELECT 
+  `employee_attendance`.`employee_id` AS `employee_id`, 
+  `employee_attendance`.`attendance_date` AS `attendance_date`, 
+  count(case when `employee_attendance`.`status` = 'present' then 1 end) AS `days_present`, 
+  count(case when `employee_attendance`.`status` = 'absent' then 1 end) AS `days_absent`, 
+  count(case when `employee_attendance`.`status` = 'leave' then 1 end) AS `days_leave` 
+FROM `employee_attendance` 
+GROUP BY 
+  `employee_attendance`.`employee_id`, 
+  month(`employee_attendance`.`attendance_date`), 
+  year(`employee_attendance`.`attendance_date`);
 
 --
 -- Indexes for dumped tables
