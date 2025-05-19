@@ -234,7 +234,7 @@ INSERT INTO `users` (`user_id`, `username`, `password`, `email`, `role`, `create
 --
 
 CREATE TABLE `vendors` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `contact_person` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
@@ -243,7 +243,8 @@ CREATE TABLE `vendors` (
   `tax_id` varchar(50) DEFAULT NULL,
   `payment_terms` int(11) DEFAULT 30,
   `status` enum('active','inactive') DEFAULT 'active',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -329,10 +330,7 @@ ALTER TABLE `users`
 --
 -- Indexes for table `vendors`
 --
-ALTER TABLE `vendors`
-  ADD PRIMARY KEY (`id`);
 
---
 -- AUTO_INCREMENT for dumped tables
 --
 

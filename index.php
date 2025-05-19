@@ -24,7 +24,9 @@ if (isset($_POST['login'])) {
             exit();
         }
     }
-    $error = "Invalid username or password";
+    $_SESSION['auth_error'] = "Invalid username or password";
+    header("Location: index.php");
+    exit();
 }
 ?>
 
@@ -68,8 +70,14 @@ if (isset($_POST['login'])) {
                 <div class="alert alert-success">Registration successful! Please login.</div>
             <?php endif; ?>
 
-            <?php if (isset($error)): ?>
-                <div class="alert alert-danger"><?php echo $error; ?></div>
+            <!-- Error handling for authentication -->
+            <?php if (isset($_SESSION['auth_error'])): ?>
+                <div class="alert alert-danger">
+                    <?php 
+                        echo htmlspecialchars($_SESSION['auth_error']);
+                        unset($_SESSION['auth_error']);
+                    ?>
+                </div>
             <?php endif; ?>
 
             <form method="POST" action="">
@@ -86,9 +94,16 @@ if (isset($_POST['login'])) {
                 <div class="d-grid gap-2">
                     <button type="submit" name="login" class="btn btn-primary">Login</button>
                 </div>
-
+                
                 <div class="text-center mt-3">
                     <p>Don't have an account? <a href="signup.php">Sign up here</a></p>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <p>Or sign in with:</p>
+                    <a href="google-login.php" class="btn btn-danger">
+                        <i class="fab fa-google"></i> Sign in with Google
+                    </a>
                 </div>
             </form>
         </div>

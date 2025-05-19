@@ -26,9 +26,9 @@ if (!isset($_SESSION['user_id'])) {
         </div>
         <nav class="mt-4">
             <div class="nav-link active">
-            <a href="dashboard.php" class="nav-link active">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
+                <a href="dashboard.php" class="nav-link active">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
             </div>
 
             <div class="nav-link">
@@ -61,7 +61,7 @@ if (!isset($_SESSION['user_id'])) {
                 <li><a href="modules/collection/fees.php" class="nav-link">Fee Collection</a></li>
                 <li><a href="modules/collection/dues.php" class="nav-link">Due Management</a></li>
                 <li><a href="modules/collection/reports.php" class="nav-link">Collection Reports</a></li>
-                <li><a href="modules/collection/receipt.php" class="nav-link">Receipt Generationt</a></li>
+                <li><a href="modules/collection/receipt.php" class="nav-link">Receipt Generation</a></li>
             </ul>
 
             <div class="nav-link">
@@ -102,7 +102,16 @@ if (!isset($_SESSION['user_id'])) {
         </nav>
     </div>
     <div class="main-content">
-        <h2 class="mb-4">Dashboard</h2>
+        <div class="header d-flex align-items-center justify-content-between">
+            <h2 class="mb-4">Dashboard</h2>
+            <!-- Profile picture display -->
+            <?php if (isset($_SESSION['profile_picture'])): ?>
+                <img src="<?php echo htmlspecialchars($_SESSION['profile_picture']); ?>" 
+                     alt="Profile" 
+                     class="rounded-circle"
+                     style="width: 32px; height: 32px;">
+            <?php endif; ?>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/navigation.js"></script>
