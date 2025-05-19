@@ -105,12 +105,20 @@ if (!isset($_SESSION['user_id'])) {
         <div class="header d-flex align-items-center justify-content-between">
             <h2 class="mb-4">Dashboard</h2>
             <!-- Profile picture display -->
-            <?php if (isset($_SESSION['profile_picture'])): ?>
-                <img src="<?php echo htmlspecialchars($_SESSION['profile_picture']); ?>" 
-                     alt="Profile" 
-                     class="rounded-circle"
-                     style="width: 32px; height: 32px;">
-            <?php endif; ?>
+            <div class="profile-picture">
+                <?php if (isset($_SESSION['profile_picture'])): ?>
+                    <img src="<?php echo htmlspecialchars($_SESSION['profile_picture']); ?>" 
+                         alt="Profile" 
+                         class="rounded-circle"
+                         style="width: 32px; height: 32px;"
+                         onerror="this.src='assets/default-profile.png';">
+                <?php else: ?>
+                    <img src="assets/default-profile.png" 
+                         alt="Default Profile" 
+                         class="rounded-circle"
+                         style="width: 32px; height: 32px;">
+                <?php endif; ?>
+            </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

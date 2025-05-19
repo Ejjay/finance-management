@@ -5,6 +5,18 @@ require_once 'vendor/autoload.php';
 
 session_start();
 
+function validateProfilePicture($url) {
+    if (empty($url)) {
+        return 'assets/img/default-avatar.png';
+    }
+    
+    if (!filter_var($url, FILTER_VALIDATE_URL)) {
+        return 'assets/img/default-avatar.png';
+    }
+    
+    return $url;
+}
+
 $client = new Google_Client();
 $client->setClientId(GOOGLE_CLIENT_ID);
 $client->setClientSecret(GOOGLE_CLIENT_SECRET);
@@ -14,16 +26,13 @@ try {
     if (isset($_GET['code'])) {
         $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
         
-        // Add debug logging
         error_log('Token received: ' . print_r($token, true));
         
         $client->setAccessToken($token);
 
-        // Get user info
         $google_oauth = new Google_Service_Oauth2($client);
         $google_account_info = $google_oauth->userinfo->get();
         
-        // Add debug logging
         error_log('Google account info: ' . print_r($google_account_info, true));
         
         $email = $google_account_info->email;
@@ -31,11 +40,11 @@ try {
         $oauth_id = $google_account_info->id;
         $picture = $google_account_info->picture;
 
-        // Initialize database connection
+        $validated_picture = validateProfilePicture($picture);
+
         $db = new Database();
         $conn = $db->getConnection('finance');
 
-        // Test database connection
         try {
             $testStmt = $conn->query("SELECT 1");
             error_log('Database connection test successful');
@@ -43,37 +52,37 @@ try {
             error_log('Database connection test failed: ' . $e->getMessage());
         }
 
-        // Add debug logging before checking if user exists
         error_log('Checking if user exists in the database');
         
-        // Check if user exists
         $stmt = $conn->prepare("SELECT * FROM users WHERE oauth_id = ? AND oauth_provider = 'google'");
         $stmt->execute([$oauth_id]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-  if (!$user) {
-    // Create new user
-    $sql = "INSERT INTO users (username, email, oauth_provider, oauth_id, profile_picture, role, password) 
-            VALUES (?, ?, 'google', ?, ?, 'user', 'google_auth_user')";
-    $stmt = $conn->prepare($sql);
-    $stmt->execute([$name, $email, $oauth_id, $picture]);
-    
-    $user_id = $conn->lastInsertId();
-    $username = $name;
-    $role = 'user';
-} else {
+        if (!$user) {
+            $sql = "INSERT INTO users (username, email, oauth_provider, oauth_id, profile_picture, role, password) 
+                    VALUES (?, ?, 'google', ?, ?, 'user', 'google_auth_user')";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([$name, $email, $oauth_id, $validated_picture]);
+            
+            $user_id = $conn->lastInsertId();
+            $username = $name;
+            $role = 'user';
+        } else {
             error_log('User found in the database');
             
             $user_id = $user['user_id'];
             $username = $user['username'];
             $role = $user['role'];
+
+            $sql = "UPDATE users SET profile_picture = ? WHERE oauth_id = ? AND oauth_provider = 'google'";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([$validated_picture, $oauth_id]);
         }
 
-        // Set session variables
         $_SESSION['user_id'] = $user_id;
         $_SESSION['username'] = $username;
         $_SESSION['role'] = $role;
-        $_SESSION['profile_picture'] = $picture;
+        $_SESSION['profile_picture'] = $validated_picture;
         $_SESSION['oauth_provider'] = 'google';
 
         header('Location: dashboard.php');
