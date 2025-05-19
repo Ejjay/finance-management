@@ -51,21 +51,17 @@ try {
         $stmt->execute([$oauth_id]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$user) {
-            // Add debug logging for new user creation
-            error_log('User not found, creating a new user entry');
-            
-            // Create new user
-            $sql = "INSERT INTO users (username, email, oauth_provider, oauth_id, profile_picture, role) 
-                    VALUES (?, ?, 'google', ?, ?, 'user')";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute([$name, $email, $oauth_id, $picture]);
-            
-            $user_id = $conn->lastInsertId();
-            $username = $name;
-            $role = 'user';
-        } else {
-            // Add debug logging for existing user
+  if (!$user) {
+    // Create new user
+    $sql = "INSERT INTO users (username, email, oauth_provider, oauth_id, profile_picture, role, password) 
+            VALUES (?, ?, 'google', ?, ?, 'user', 'google_auth_user')";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$name, $email, $oauth_id, $picture]);
+    
+    $user_id = $conn->lastInsertId();
+    $username = $name;
+    $role = 'user';
+} else {
             error_log('User found in the database');
             
             $user_id = $user['user_id'];
